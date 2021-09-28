@@ -1,25 +1,31 @@
 import React, { memo } from 'react';
-import { View } from 'react-native';
+// import { View } from 'react-native';
 import styled from "styled-components";
-import poster from '../assets/movie-poster.jpg';
-const Movie = memo(() => (
+import { IMAGE_URL } from '../utils';
+
+const Movie = memo((props) => (
     <Container>
-        <TopContainer>
-            <TopContent>
-                <SubTitle>02/10/1997</SubTitle>
-                <SubTitle>4.9(ratings)</SubTitle>
-            </TopContent>
-        </TopContainer>
-        <Image source={poster} />
-        <Title>Title of the movie</Title>
+        {props.variant !== 'thumb' && (
+            <TopContainer>
+                <TopContent>
+                    <SubTitle>{props.release_date}</SubTitle>
+                    <SubTitle>{props.vote_average}(ratings)</SubTitle>
+                </TopContent>
+            </TopContainer>
+        )}
+
+        <Image source={{ uri: `${IMAGE_URL}w400${props.poster_path}` }} resizeMode="cover" variant={props.variant} />
+        {props.variant !== 'thumb' && (
+            <Title>{props.original_title}</Title>
+        )}
     </Container>
 ));
 
 export default Movie;
 
 const Image = styled.Image`
-height: 300px;
-width: 100%;
+height: ${props => props.variant === 'thumb' ? '100px' : '400px'};
+width: ${props => props.variant === 'thumb' ? '100px' : '100%'};
 border-top-left-radius: 8px;
 border-top-right-radius: 8px;
 `;
@@ -37,6 +43,8 @@ const SubTitle = styled.Text`
     lineHeight: 20px;
     fontWeight: 500;
     color: #FFF;
+    backgroundColor: #112232;
+    paddingHorizontal: 10px;
 `;
 
 const TopContainer = styled.View`

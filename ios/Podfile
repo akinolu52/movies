@@ -12,6 +12,8 @@ target 'Movie' do
     :hermes_enabled => true
   )
 
+  pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
+
   target 'MovieTests' do
     inherit! :complete
     # Pods for testing

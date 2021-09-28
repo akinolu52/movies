@@ -12,14 +12,18 @@
   "dependencies": {
     "@react-navigation/native": "^6.0.4",
     "@react-navigation/stack": "^6.0.9",
+    "add": "^2.0.6",
     "axios": "^0.21.4",
     "react": "17.0.2",
     "react-native": "0.65.1",
     "react-native-gesture-handler": "^1.10.3",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.7.2",
+    "react-native-star-rating": "^1.1.0",
+    "react-native-vector-icons": "^8.1.0",
     "react-query": "^3.24.4",
-    "styled-components": "^5.3.1"
+    "styled-components": "^5.3.1",
+    "yarn": "^1.22.11"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",

@@ -1,8 +1,9 @@
 // import { toast } from '@utils';
 import axios from 'axios';
 
-export const MOVIE_DB_API_KEY = '7315ec59ea2264da1fa4f4eb8d647853';
-const BASE_URL = `https://api.themoviedb.org/3/movie/76341`;
+export const MOVIE_DB_API_KEY = '6602e16a2113f244e6ec2c2dcca2770a';
+const BASE_URL = 'https://api.themoviedb.org/3/movie/';
+export const IMAGE_URL = 'https://image.tmdb.org/t/p/';
 
 const apiResource = () => {
 
@@ -15,19 +16,13 @@ const apiResource = () => {
             'Access-Control-Allow-Origin': BASE_URL,
         },
     });
-    // api.interceptors.request.use(
-    //     async config => {
-    //         const token = await getToken();
-    //         // console.log('token from api -> ', token);
-    //         if (!token) return config;
-
-    //         config.headers['Authorization'] = token;
-    //         config.headers['Fingerprint'] = DeviceInfo.getUniqueId();
-    //         // console.log('config -> ', config);
-    //         return config;
-    //     },
-    //     error => Promise.reject(error)
-    // );
+    api.interceptors.request.use(
+        async config => {
+            console.log('config -> ', config);
+            return config;
+        },
+        error => Promise.reject(error)
+    );
 
     api.interceptors.response.use(response => {
         // console.log('response from api -> ', response);
@@ -44,7 +39,10 @@ const apiResource = () => {
     });
 
     return {
-        get: async url => api.get(url).then(({ data }) => data),
+        get: async url => {
+            console.log('url -> ' + url);
+            return api.get(url).then(({ data }) => data);
+        },
 
         post: async values => {
             // token = await getToken();

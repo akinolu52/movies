@@ -1,19 +1,20 @@
+import { NavigationContainer } from '@react-navigation/native';
 import React from 'react';
-import { ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { Movies } from './src/screens';
+import AppNavigator from './src/router';
 
 const queryClient = new QueryClient();
 
 const App = () => {
+  console.log('yes')
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
-        <QueryClientProvider client={queryClient}>
-          <Movies />
-        </QueryClientProvider>
-      </ScrollView>
+    <SafeAreaView style={{ flex: 1, }}>
+      <QueryClientProvider client={queryClient}>
+        <NavigationContainer>
+          <AppNavigator />
+        </NavigationContainer>
+      </QueryClientProvider>
     </SafeAreaView>
   );
 };
