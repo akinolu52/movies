@@ -10,6 +10,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-async-storage/async-storage": "^1.15.8",
     "@react-navigation/native": "^6.0.4",
     "@react-navigation/stack": "^6.0.9",
     "add": "^2.0.6",
