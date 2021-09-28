@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, View } from 'react-native';
-import { useMutation, useQuery } from 'react-query';
+import { useQuery } from 'react-query';
 import styled from "styled-components";
+import back from '../assets/back.png';
 import likeFilled from '../assets/like-filled.png';
 import like from '../assets/like.png';
-import { Movie, Rating } from '../components';
-import { api, IMAGE_URL, MOVIE_DB_API_KEY, ROUTES } from '../utils';
+import { Movie } from '../components';
+import { api, getData, IMAGE_URL, MOVIE_DB_API_KEY, ROUTES, storeData } from '../utils';
 
 const MovieDetails = ({ route, navigation }) => {
     const { movie } = route.params;
@@ -23,21 +24,6 @@ const MovieDetails = ({ route, navigation }) => {
         queryFn: () => api.get(`${movie?.id}?api_key=${MOVIE_DB_API_KEY}&append_to_response=credits`)
     });
 
-    const { mutateAsync } = useMutation(api.post);
-
-    const onRate = async (payload) => {
-        try {
-            const values = { ...payload, agentId: user.agentId };
-            const response = await mutateAsync(["v1/agentBank", values]);
-            navigation.navigate(ROUTES.ACCOUNT_HOME);
-
-            console.log("response >>>>", response);
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-
     useEffect(() => {
         if (isFetched) {
             setMovieInfo(data);
@@ -47,7 +33,41 @@ const MovieDetails = ({ route, navigation }) => {
         }
     }, [isLoading, isFetched, data]);
 
+    const loadFav = async () => await getData('favMovie') || [];
+
+    checkIfMovieIsLiked = async () => {
+        const favMovies = await loadFav();
+        const isPreviouslyLiked = favMovies?.find(item => item.id === movie.id);
+
+        if (isPreviouslyLiked?.id) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    useEffect(async () => {
+        const check = await checkIfMovieIsLiked();
+        setLiked(check);
+    }, []);
+
     const moveToDetails = item => navigation.push(ROUTES.MOVIE_DETAILS, { movie: item });
+
+    const likeMovie = async () => {
+        let favMovie;
+        if (liked) {
+            // you want to unlike
+            favMovie = await loadFav();
+            favMovie = favMovie?.filter(item => item.id !== movie.id);
+        } else {
+            // you want to like
+            favMovie = await loadFav();
+            favMovie = [...favMovie, movieInfo];
+        }
+
+        await storeData('favMovie', favMovie);
+        setLiked(x => !x);
+    }
 
     return (
         <Container>
@@ -55,11 +75,21 @@ const MovieDetails = ({ route, navigation }) => {
                 <ActivityIndicator />
             ) : (
                 <>
-                    <Title>{movieInfo?.title}</Title>
+                    <View style={{
+                        flexDirection: 'row',
+                        alignItems: 'center', justifyContent: 'center',
+                        marginTop: 8,
+                        marginBottom: 16,
+                    }}>
+                        <Pressable onPress={() => navigation.goBack()}>
+                            <Image source={back} style={{ width: 32, height: 32 }} />
+                        </Pressable>
+                        <Title style={{ flex: 1 }}>{movieInfo?.title}</Title>
+                    </View>
 
                     <View style={{ position: 'relative' }}>
                         <Picture source={{ uri: `${IMAGE_URL}w400${movieInfo?.poster_path}` }} resizeMode="cover" />
-                        <Pressable onPress={() => setLiked(x => !x)}>
+                        <Pressable onPress={likeMovie}>
                             <Image
                                 source={liked ? likeFilled : like}
                                 style={{
@@ -75,9 +105,9 @@ const MovieDetails = ({ route, navigation }) => {
                     <Overview>
                         <SubTitle>Year of release</SubTitle>: {movieInfo?.release_date}
                     </Overview>
-                    <Overview style={{}}>
+                    {/* <Overview style={{}}>
                         <Rating />
-                    </Overview>
+                    </Overview> */}
                     <Overview>
                         <SubTitle>Genre</SubTitle>: {genres}
                     </Overview>
@@ -131,8 +161,6 @@ const Title = styled.Text`
     letterSpacing: -0.6px;
     fontWeight: bold;
     color: #02075C;
-    marginTop:8px;
-    marginBottom: 16px;
     textAlign: center;
 `;
 const SubTitle = styled.Text`
@@ -165,4 +193,4 @@ const Container = styled.ScrollView.attrs(() => ({
     contentContainerStyle: {
         flexGrow: 1,
     }
-}))`height: 100%; flex: 1; paddingHorizontal:10px; borderWidth: 1px; borderColor: red `;
+}))`height: 100%; flex: 1; paddingHorizontal:10px;`;

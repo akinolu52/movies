@@ -1,9 +1,39 @@
-import React, { useEffect, useState } from 'react';
-import { Pressable } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Image, Pressable, View } from 'react-native';
 import { useQuery } from 'react-query';
 import styled from "styled-components";
+import illustration from '../assets/illustration.png';
 import { Movie } from '../components';
-import { api, MOVIE_DB_API_KEY, ROUTES } from '../utils';
+import {
+    api,
+    // clearData,
+    getData, MOVIE_DB_API_KEY, ROUTES
+} from '../utils';
+
+const ListEmpty = () => (
+    <View style={{
+        backgroundColor: '#EDF2F7', borderRadius: 8,
+        justifyContent: 'center', alignItems: 'center',
+        marginTop: 100,
+        marginHorizontal: 16
+    }}>
+        <Image source={illustration} style={{ width: 116.47, height: 98.56, marginBottom: 100 }} />
+        <Title>No movie in this category.</Title>
+    </View>
+);
+
+const ListHeader = ({ activeTab, setActiveTab }) => (
+    <Content>
+        <Pressable onPress={() => setActiveTab(1)}>
+            <Title>The movie directory</Title>
+        </Pressable>
+
+        <Pressable onPress={() => setActiveTab(2)}>
+            <SubTitle active={activeTab === 2}>Fav Movies</SubTitle>
+        </Pressable>
+    </Content>
+)
 
 const Movies = ({ navigation }) => {
     const { data, isLoading, isFetched } = useQuery({
@@ -11,6 +41,24 @@ const Movies = ({ navigation }) => {
         queryFn: () => api.get(`popular?api_key=${MOVIE_DB_API_KEY}`)
     });
     const [movies, setMovies] = useState([]);
+    const [favMovie, setFavMovie] = useState([]);
+    const [activeTab, setActiveTab] = useState(1);
+
+    const loadFav = async () => {
+        let _favMovie = await getData('favMovie') || [];
+
+        setFavMovie(_favMovie);
+    }
+
+    useFocusEffect(
+        useCallback(() => {
+            loadFav();
+        }, [favMovie])
+    );
+
+    useEffect(() => {
+        loadFav();
+    }, []);
 
     useEffect(() => {
         if (isFetched) {
@@ -19,17 +67,16 @@ const Movies = ({ navigation }) => {
             setMovies(_movies);
 
         }
-    }, [isLoading, isFetched, data])
+    }, [isLoading, isFetched, data]);
 
-    // console.log(movies);
-
-    const moveToDetails = item => navigation.navigate(ROUTES.MOVIE_DETAILS, { movie: item })
+    const moveToDetails = item => navigation.navigate(ROUTES.MOVIE_DETAILS, { movie: item });
 
     return (
         <Container
             refreshing={isLoading || false}
-            ListHeaderComponent={<Title>The movie directory</Title>}
-            data={movies}
+            ListEmptyComponent={<ListEmpty />}
+            ListHeaderComponent={<ListHeader activeTab={activeTab} setActiveTab={setActiveTab} />}
+            data={activeTab === 1 ? movies : favMovie}
             renderItem={({ item }, index) => (
                 <Pressable key={index} onPress={() => moveToDetails(item)}>
                     <Movie {...item} />
@@ -48,8 +95,14 @@ const Title = styled.Text`
     letterSpacing: -0.6px;
     fontWeight: bold;
     color: #02075C;
-    marginTop:8px;
-    marginBottom: 20px;
+`;
+
+const SubTitle = styled.Text`
+  fontSize: 16px;
+    lineHeight: 24px;
+    fontWeight: 500;
+    color: #02075C;
+    textDecorationLine: ${props => props.active ? 'underline' : 'none'};
 `;
 
 const Container = styled.FlatList`
@@ -57,8 +110,11 @@ const Container = styled.FlatList`
   paddingHorizontal:10px;
 `;
 
-// const Container = styled.ScrollView.attrs(() => ({
-//     contentContainerStyle: {
-//         flexGrow: 1,
-//     }
-// }))`height: 100%; flex: 1; paddingHorizontal:10px;`;
+const Content = styled.View`
+  marginBottom: 10px;
+  flex-direction: row;
+  alignItems: center;
+  justifyContent: space-between;
+    marginTop:8px;
+    marginBottom: 20px;
+`;

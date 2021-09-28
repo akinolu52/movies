@@ -7,7 +7,6 @@ import AppNavigator from './src/router';
 const queryClient = new QueryClient();
 
 const App = () => {
-  console.log('yes')
   return (
     <SafeAreaView style={{ flex: 1, }}>
       <QueryClientProvider client={queryClient}>

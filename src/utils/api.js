@@ -16,13 +16,13 @@ const apiResource = () => {
             'Access-Control-Allow-Origin': BASE_URL,
         },
     });
-    api.interceptors.request.use(
-        async config => {
-            console.log('config -> ', config);
-            return config;
-        },
-        error => Promise.reject(error)
-    );
+    // api.interceptors.request.use(
+    //     async config => {
+    //         // console.log('config -> ', config);
+    //         return config;
+    //     },
+    //     error => Promise.reject(error)
+    // );
 
     api.interceptors.response.use(response => {
         // console.log('response from api -> ', response);
@@ -39,10 +39,7 @@ const apiResource = () => {
     });
 
     return {
-        get: async url => {
-            console.log('url -> ' + url);
-            return api.get(url).then(({ data }) => data);
-        },
+        get: async url => api.get(url).then(({ data }) => data),
 
         post: async values => {
             // token = await getToken();
