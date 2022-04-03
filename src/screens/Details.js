@@ -19,6 +19,7 @@ const MovieDetails = ({ route, navigation }) => {
         queryKey: 'movieRecommendation',
         queryFn: () => api.get(`${movie?.id}/recommendations?api_key=${MOVIE_DB_API_KEY}`)
     });
+    
     const { data, isLoading, isFetched } = useQuery({
         queryKey: 'movieDetails',
         queryFn: () => api.get(`${movie?.id}?api_key=${MOVIE_DB_API_KEY}&append_to_response=credits`)
